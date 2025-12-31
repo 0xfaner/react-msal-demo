@@ -8,22 +8,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
+          cache: 'npm'
       - name: Install Dependencies
-        run: |
-          npm install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Build Site
-        run: |
-          npm run build
-      - uses: actions/upload-pages-artifact@v1
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: 'build'
+          path: 'dist'
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/master'
 
     permissions:
       pages: write
@@ -37,4 +39,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4

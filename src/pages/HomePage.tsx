@@ -1,11 +1,14 @@
 import React from "react";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-import { Stack, Image, Text, ImageFit, Label, PrimaryButton } from "@fluentui/react";
-import { IdentityContext } from "../components/IdentityProvider";
+import { Text, Button } from "@fluentui/react-components";
+import { useIdentity } from "../hooks/useIdentity";
 import { loginRequest } from "../config/auth";
+import styles from "./HomePage.module.css";
 
 const HomePage: React.FunctionComponent = () => {
   const { instance } = useMsal();
+  const identity = useIdentity();
+
   const handleLogin = () => {
     instance.loginRedirect(loginRequest)
   };
@@ -14,57 +17,40 @@ const HomePage: React.FunctionComponent = () => {
   }
 
   return (
-    <Stack horizontalAlign="center" tokens={{ childrenGap: "40px" }} style={{
-      minHeight: "calc(100vh - var(--header-height))",
-    }}>
+    <div className={styles.container}>
       <AuthenticatedTemplate>
-        <IdentityContext.Consumer>
-          {(identity) => (
-            <React.Fragment>
-              <Stack className="tab" tokens={{ childrenGap: "20px" }} style={{
-                width: "320px",
-                padding: "40px 20px",
-                marginTop: "40px",
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                boxShadow: "0 0 20px #cccccc",
-                background: "repeating-linear-gradient(23deg, #fff 0%, #fff 42.8%, #4a78b0 0%, #4a78b0 100%)",
-              }}>
-                <Stack horizontal horizontalAlign="center">
-                  <Image className="avatar" src={identity?.profile.avatar} imageFit={ImageFit.centerCover} height={"210px"} width={"210px"} style={{
-                    borderRadius: "50%",
-                  }} />
-                </Stack>
-                <Stack tokens={{ childrenGap: "10px" }}>
-                  <Stack>
-                    <Label>Display name:</Label>
-                    <Text>{identity?.profile.displayName}</Text>
-                  </Stack>
-                  <Stack>
-                    <Label>Mail:</Label>
-                    <Text>{identity?.profile.mail}</Text>
-                  </Stack>
-                  <Stack>
-                    <Label>User id:</Label>
-                    <Text>{identity?.userid}</Text>
-                  </Stack>
-                </Stack>
-              </Stack>
-              <PrimaryButton text="Sign out" onClick={handleLogout} />
-            </React.Fragment>
-          )}
-        </IdentityContext.Consumer>
+        {identity && (
+          <React.Fragment>
+            <div className={styles.tab}>
+              <div className={styles.avatarWrapper}>
+                <img className={styles.avatarImg} src={identity.profile.avatar} alt="avatar" />
+              </div>
+              <div className={styles.profileInfo}>
+                <div>
+                  <div className={styles.label}>Display name:</div>
+                  <div><Text>{identity.profile.displayName}</Text></div>
+                </div>
+                <div>
+                  <div className={styles.label}>Mail:</div>
+                  <div><Text>{identity.profile.mail}</Text></div>
+                </div>
+                <div>
+                  <div className={styles.label}>User id:</div>
+                  <div><Text>{identity.userid}</Text></div>
+                </div>
+              </div>
+            </div>
+            <Button appearance="primary" onClick={handleLogout}>Sign out</Button>
+          </React.Fragment>
+        )}
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <Stack tokens={{ childrenGap: "40px" }} style={{
-          marginTop: "40px",
-        }}>
-          <Text variant="xLarge">Please click the button below to sign in.</Text>
-          <PrimaryButton text="Sign in" onClick={handleLogin} />
-        </Stack>
+        <div className={styles.unauthenticatedContainer}>
+          <Text size={500}>Please click the button below to sign in.</Text>
+          <Button appearance="primary" onClick={handleLogin}>Sign in</Button>
+        </div>
       </UnauthenticatedTemplate>
-    </Stack>
-
+    </div>
   );
 };
 

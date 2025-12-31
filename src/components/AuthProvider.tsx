@@ -5,10 +5,12 @@ import { msalConfig } from "../config/auth";
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
-msalInstance.handleRedirectPromise().then((response) => {
-  if (response) {
-    msalInstance.setActiveAccount(response.account);
-  }
+msalInstance.initialize().then(() => {
+  msalInstance.handleRedirectPromise().then((response) => {
+    if (response) {
+      msalInstance.setActiveAccount(response.account);
+    }
+  });
 });
 
 const AuthProvider: React.FunctionComponent<{

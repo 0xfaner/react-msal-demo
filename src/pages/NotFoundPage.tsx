@@ -1,11 +1,12 @@
 import React from "react";
-import { Stack, Text } from "@fluentui/react";
+import { Text } from "@fluentui/react-components";
+import styles from "./NotFoundPage.module.css";
 
 const NotFoundPage: React.FunctionComponent = () => {
   return (
-    <Stack horizontal horizontalAlign="center">
-      <Text variant="xxLarge">404 Page Not Found</Text>
-    </Stack>
+    <div className={styles.container}>
+      <Text size={900}>404 Page Not Found</Text>
+    </div>
   );
 };
 

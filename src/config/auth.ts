@@ -1,10 +1,10 @@
-import { Configuration } from "@azure/msal-browser";
+import type { Configuration } from "@azure/msal-browser";
 
 export const msalConfig: Configuration = {
   auth: {
-    clientId: `${process.env.REACT_APP_MSAL_APPLICARION_ID}`,
-    authority: `${process.env.REACT_APP_MSAL_CLOUD_INSTANCE_ID}/${process.env.REACT_APP_MSAL_TENANT_ID}`,
-    redirectUri: `${process.env.REACT_APP_MSAL_REDIRECT_URI}`,
+    clientId: `${import.meta.env.VITE_MSAL_APPLICATION_ID}`,
+    authority: `${import.meta.env.VITE_MSAL_CLOUD_INSTANCE_ID}/${import.meta.env.VITE_MSAL_TENANT_ID}`,
+    redirectUri: `${import.meta.env.VITE_MSAL_REDIRECT_URI}`,
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -21,6 +21,6 @@ export const loginRequest = {
 };
 
 export const graphConfig = {
-  graphMeEndpoint: `${process.env.REACT_APP_GRAPH_ENDPOINT_URI}/v1.0/me`,
-  graphUserEndpoint: `${process.env.REACT_APP_GRAPH_ENDPOINT_URI}/v1.0/users`
+  graphMeEndpoint: `${import.meta.env.VITE_GRAPH_ENDPOINT_URI}/v1.0/me`,
+  graphUserEndpoint: `${import.meta.env.VITE_GRAPH_ENDPOINT_URI}/v1.0/users`
 };

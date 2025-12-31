@@ -1,3 +1,3 @@
-# Create React App with Microsoft Authentication Library
+# React MSAL Demo
 
-This is just a demo :)
+A modern demo application built with **Vite**, **React**, and **Microsoft Authentication Library (MSAL)** for Azure AD authentication.

@@ -2,19 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { tokenRequest } from "../config/auth";
 import { getGraphMyPhoto, getGraphMyProfile } from "../api/graph";
-
-export type Identity = {
-  userid: string;
-  profile: {
-    displayName: string;
-    surname: string;
-    givenName: string;
-    mail: string;
-    avatar: string;
-  };
-};
-
-export const IdentityContext = React.createContext<Identity | null>(null);
+import { IdentityContext, type Identity } from "../context/IdentityContext";
 
 const IdentityProvider: React.FunctionComponent<{
   children: React.ReactNode
@@ -22,29 +10,49 @@ const IdentityProvider: React.FunctionComponent<{
   const { instance } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const [identity, setIdentity] = useState<Identity | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated && !identity) {
-      const account = instance.getActiveAccount();
-      instance.acquireTokenSilent(tokenRequest)
-        .then((result) => {
-          Promise.all([
-            getGraphMyProfile(result.accessToken),
-            getGraphMyPhoto(result.accessToken)
-          ]).then(([profile, avatar]) => ({
-            userid: account!.localAccountId,
-            profile: {
-              displayName: profile!.displayName,
-              surname: profile!.surname,
-              givenName: profile!.givenName,
-              mail: profile!.userPrincipalName,
-              avatar: avatar!,
-            }
-          } as Identity)
-          ).then((identity) => setIdentity(identity));
-        });
+    if (!isAuthenticated || isLoading) {
+      return;
     }
-  }, [instance, isAuthenticated, identity]);
+
+    const loadIdentity = async () => {
+      try {
+        setIsLoading(true);
+        const account = instance.getActiveAccount();
+        if (!account) {
+          console.warn("No active account found");
+          return;
+        }
+
+        const result = await instance.acquireTokenSilent(tokenRequest);
+        const [profile, avatar] = await Promise.all([
+          getGraphMyProfile(result.accessToken),
+          getGraphMyPhoto(result.accessToken)
+        ]);
+
+        if (profile) {
+          setIdentity({
+            userid: account.localAccountId,
+            profile: {
+              displayName: profile.displayName,
+              surname: profile.surname,
+              givenName: profile.givenName,
+              mail: profile.userPrincipalName,
+              avatar: avatar || "",
+            }
+          } as Identity);
+        }
+      } catch (error) {
+        console.error("Failed to load identity:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadIdentity();
+  }, [instance, isAuthenticated, isLoading]);
 
   return (
     <IdentityContext.Provider value={identity}>
